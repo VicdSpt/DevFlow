@@ -1,5 +1,8 @@
 import {Hono} from 'hono'
 import {serve} from '@hono/node-server'
+import projects from './routes/projects'
+import 'dotenv/config'
+
 
 const app = new Hono()
 
@@ -7,9 +10,11 @@ app.get("/", ((c) => {
     return c.json({status: "ok"})
 }))
 
+app.route('/projects', projects)
+
 serve({
     fetch: app.fetch,
-    port: Number(process.env.PORT)
+    port: Number(process.env.PORT) || 3000
 }, (info) => {
     console.log(`Serveur démarré sur http://localhost:${info.port}`)
 })
