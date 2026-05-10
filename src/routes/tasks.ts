@@ -10,9 +10,28 @@ tasks.get("/", async (c) => {
     return c.json({data: tasks})
 })
 
-tasks.post
+tasks.post("/", async (c) => {
+    const id = c.req.param("id")
+    const body = await c.req.json();
+    const tasks = await db.task.create({
+        data:{
+            title: body.title,
+            projectId: id
+        }
+    })
+    return c.json({data: tasks}, 201)
+})
 
-tasks.get
+tasks.get("/:taskId", async (c) => {
+    const taskId  = c.req.param("taskId")
+    const tasks = await db.task.findUnique({where: {id: taskId}})
+    if (!tasks)
+    return c.json(
+      { error: { code: "NOT_FOUND", message: "Project not found" } },
+      404,
+    );
+  return c.json({ data: tasks });
+})
 
 tasks.patch
 
