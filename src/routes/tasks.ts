@@ -33,8 +33,17 @@ tasks.get("/:taskId", async (c) => {
   return c.json({ data: tasks });
 })
 
-tasks.patch
+tasks.patch('/:taskId', async (c) => {
+  const taskId = c.req.param('taskId')
+  const body = await c.req.json()
+  const task = await db.task.update({ where: { id: taskId }, data: body })
+  return c.json({ data: task })
+})
 
-tasks.delete
+tasks.delete('/:taskId', async (c) => {
+  const taskId = c.req.param('taskId')
+  await db.task.update({ where: { id: taskId }, data: { status: 'ARCHIVED' } })
+  return c.body(null, 204)
+})
 
 export default tasks
