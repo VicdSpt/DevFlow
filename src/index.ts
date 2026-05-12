@@ -11,6 +11,7 @@ app.get("/", ((c) => {
 }))
 
 app.route('/projects/:id/tasks', tasks)
+app.route('/projects', projects)
 
 serve({
     fetch: app.fetch,

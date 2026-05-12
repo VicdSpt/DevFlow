@@ -1,5 +1,7 @@
 import { Hono } from "hono";
 import { db } from "../db/client";
+import { CreateProjectSchema, UpdateProjectSchema } from '../validators/projects'
+
 
 const projects = new Hono();
 
@@ -10,9 +12,14 @@ projects.get("/", async (c) => {
 
 projects.post("/", async (c) => {
   const body = await c.req.json();
+  const result = CreateProjectSchema.safeParse(body)
+  if(!result.success){
+    return c.json({error: result.error.flatten()}, 422)
+  }
   const projects = await db.project.create({
     data: {
-      name: body.name,
+      name: result.data.name,
+      description: result.data.description,
       ownerId: "user-1",
     },
   });
@@ -32,8 +39,12 @@ projects.get("/:id", async (c) => {
 
 projects.patch("/:id", async (c) => {
   const body = await c.req.json();
+  const result = UpdateProjectSchema.safeParse(body)
+  if(!result.success){
+    return c.json({error: result.error.flatten()}, 422)
+  }
   const id = c.req.param("id");
-  const projects = await db.project.update({ where: { id }, data: body });
+  const projects = await db.project.update({ where: { id }, data: result.data });
   return c.json({ data: projects });
 });
 
