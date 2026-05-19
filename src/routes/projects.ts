@@ -3,14 +3,18 @@ import { db } from "../db/client";
 import { CreateProjectSchema, UpdateProjectSchema } from '../validators/projects'
 
 
-const projects = new Hono();
+type Variables = { user: { id: string; email: string; name?: string | null } }
+
+const projects = new Hono<{ Variables: Variables }>();
 
 projects.get("/", async (c) => {
-  const projects = await db.project.findMany();
+  const user = c.get('user')
+  const projects = await db.project.findMany({ where: { ownerId: user.id } });
   return c.json({ data: projects });
 });
 
 projects.post("/", async (c) => {
+  const user = c.get('user')
   const body = await c.req.json();
   const result = CreateProjectSchema.safeParse(body)
   if(!result.success){
@@ -20,7 +24,7 @@ projects.post("/", async (c) => {
     data: {
       name: result.data.name,
       description: result.data.description,
-      ownerId: "user-1",
+      ownerId: user.id,
     },
   });
   return c.json({ data: projects }, 201);
