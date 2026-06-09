@@ -18,7 +18,15 @@
       "Bash(bash \"C:/Users/Admin/.claude/plugins/cache/claude-plugins-official/superpowers/5.1.0/skills/brainstorming/scripts/start-server.sh\" --project-dir \"e:/ALL DOCUMENTS/COURS CODE WCS/devflow\")",
       "Bash(git commit *)",
       "Bash(cat \"C:\\\\Users\\\\Admin\\\\AppData\\\\Local\\\\npm-cache\\\\_logs\\\\2026-06-09T08_55_14_806Z-debug-0.log\" | tail -40)",
-      "Read(//c/Users/Admin/AppData/Local/npm-cache/_logs/**)"
+      "Read(//c/Users/Admin/AppData/Local/npm-cache/_logs/**)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(curl -s -X OPTIONS http://localhost:3000/api/auth/sign-in/email -H \"Origin: http://localhost:3001\" -H \"Access-Control-Request-Method: POST\" -v)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill /PID 5408 /F)",
+      "PowerShell(Stop-Process -Id 5408 -Force)",
+      "Bash(pnpm dev *)",
+      "Bash(curl -s -o /dev/null -w \"frontend: %{http_code}\" http://localhost:3001/dashboard)",
+      "Bash(npx tsc *)"
     ]
   }
 }

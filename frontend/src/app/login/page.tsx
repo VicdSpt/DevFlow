@@ -23,6 +23,7 @@ export default function LoginPage() {
         router.push('/dashboard')
     }
 
+
     return (
         <div className="min-h-screen bg-gray-950 flex items-center justify-center">
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-8 w-full max-w-sm">
