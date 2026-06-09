@@ -7,7 +7,18 @@
       "Bash(git remote *)",
       "Bash(git push *)",
       "Bash(node -e \"const {PrismaClient} = require\\('./node_modules/.pnpm/@prisma+client@7.8.0_prisma_f396377cf49b0bec41ee0857f7cd6490/node_modules/@prisma/client/src/runtime/getPrismaClient.ts'\\)\")",
-      "Bash(pnpm add *)"
+      "Bash(pnpm add *)",
+      "Bash(Remove-Item -Recurse -Force \"e:\\\\ALL DOCUMENTS\\\\COURS CODE WCS\\\\devflow\\\\frontend\\\\.next\")",
+      "Bash(Remove-Item -Recurse -Force \"e:\\\\ALL DOCUMENTS\\\\COURS CODE WCS\\\\devflow\\\\frontend\\\\app\")",
+      "Bash(Get-ChildItem -Path \"src\" -Recurse)",
+      "Bash(Select-Object FullName)",
+      "PowerShell(cd \"e:\\\\ALL DOCUMENTS\\\\COURS CODE WCS\\\\devflow\\\\frontend\\\\src\"; Get-ChildItem -Recurse | Select-Object @{n='Path';e={$_.FullName.substring\\('E:\\\\ALL DOCUMENTS\\\\COURS CODE WCS\\\\devflow\\\\frontend\\\\src'.length\\)}} | Sort-Object Path)",
+      "PowerShell(ls -Recurse \"e:\\\\ALL DOCUMENTS\\\\COURS CODE WCS\\\\devflow\\\\frontend\\\\src\" | % { $_.FullName })",
+      "Bash(C:\\\\Users\\\\Admin\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\superpowers\\\\5.1.0\\\\scripts\\\\start-server.sh --project-dir \"e:/ALL DOCUMENTS/COURS CODE WCS/devflow\")",
+      "Bash(bash \"C:/Users/Admin/.claude/plugins/cache/claude-plugins-official/superpowers/5.1.0/skills/brainstorming/scripts/start-server.sh\" --project-dir \"e:/ALL DOCUMENTS/COURS CODE WCS/devflow\")",
+      "Bash(git commit *)",
+      "Bash(cat \"C:\\\\Users\\\\Admin\\\\AppData\\\\Local\\\\npm-cache\\\\_logs\\\\2026-06-09T08_55_14_806Z-debug-0.log\" | tail -40)",
+      "Read(//c/Users/Admin/AppData/Local/npm-cache/_logs/**)"
     ]
   }
 }

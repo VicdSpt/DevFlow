@@ -1,0 +1,97 @@
+<h2>Comment créer un nouveau projet ?</h2>
+<p class="subtitle">Interaction au clic sur "+ Nouveau projet"</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;border-radius:6px;padding:12px;font-size:11px;color:#cdd6f4;min-height:160px;position:relative">
+        <!-- Dashboard en arrière-plan flouté -->
+        <div style="opacity:0.3;margin-bottom:0">
+          <div style="background:#313244;border-radius:4px;padding:5px 10px;margin-bottom:8px;display:flex;justify-content:space-between">
+            <span style="color:#cba6f7">⚡ DevFlow</span>
+            <span style="color:#585b70">Projets | Tâches</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
+            <div style="background:#313244;border-radius:4px;padding:7px;height:50px"></div>
+            <div style="background:#313244;border-radius:4px;padding:7px;height:50px"></div>
+          </div>
+        </div>
+        <!-- Modale par-dessus -->
+        <div style="position:absolute;top:30px;left:50%;transform:translateX(-50%);background:#313244;border-radius:8px;padding:14px;width:190px;box-shadow:0 8px 24px rgba(0,0,0,0.5);border:1px solid #45475a">
+          <div style="font-weight:bold;color:#cdd6f4;margin-bottom:10px;font-size:12px">Nouveau projet</div>
+          <input style="width:100%;background:#1e1e2e;border:1px solid #45475a;border-radius:4px;padding:5px 8px;color:#cdd6f4;font-size:10px;box-sizing:border-box;margin-bottom:6px" placeholder="Nom du projet" />
+          <textarea style="width:100%;background:#1e1e2e;border:1px solid #45475a;border-radius:4px;padding:5px 8px;color:#cdd6f4;font-size:10px;box-sizing:border-box;height:36px;resize:none;margin-bottom:8px" placeholder="Description (optionnel)"></textarea>
+          <div style="display:flex;gap:5px;justify-content:flex-end">
+            <button style="background:transparent;border:1px solid #45475a;border-radius:4px;padding:4px 8px;color:#585b70;font-size:9px">Annuler</button>
+            <button style="background:#cba6f7;border:none;border-radius:4px;padding:4px 8px;color:#1e1e2e;font-size:9px;font-weight:bold">Créer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Modale (overlay)</h3>
+      <p>Formulaire dans une fenêtre par-dessus le dashboard. Reste sur la même page, rapide. Le plus courant pour un CRUD simple.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;border-radius:6px;padding:12px;font-size:11px;color:#cdd6f4;min-height:160px">
+        <div style="background:#313244;border-radius:4px;padding:5px 10px;margin-bottom:8px;display:flex;justify-content:space-between">
+          <span style="color:#cba6f7">⚡ DevFlow</span>
+          <span style="color:#585b70">← Retour</span>
+        </div>
+        <div style="padding:8px">
+          <div style="font-weight:bold;color:#cdd6f4;margin-bottom:10px;font-size:13px">Nouveau projet</div>
+          <div style="margin-bottom:6px">
+            <div style="color:#89b4fa;font-size:9px;margin-bottom:2px">NOM</div>
+            <div style="background:#313244;border:1px solid #45475a;border-radius:4px;padding:5px 8px;color:#585b70;font-size:10px">Mon projet...</div>
+          </div>
+          <div style="margin-bottom:8px">
+            <div style="color:#89b4fa;font-size:9px;margin-bottom:2px">DESCRIPTION</div>
+            <div style="background:#313244;border:1px solid #45475a;border-radius:4px;padding:5px 8px;color:#585b70;font-size:10px;height:28px"></div>
+          </div>
+          <button style="background:#cba6f7;border:none;border-radius:4px;padding:5px 12px;color:#1e1e2e;font-size:10px;font-weight:bold">Créer le projet</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Page dédiée</h3>
+      <p>Navigation vers <code>/dashboard/new</code>. Plus d'espace, mais navigation supplémentaire. Utile si le formulaire devient complexe.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;border-radius:6px;padding:12px;font-size:11px;color:#cdd6f4;min-height:160px">
+        <div style="background:#313244;border-radius:4px;padding:5px 10px;margin-bottom:8px">
+          <span style="color:#cba6f7">⚡ DevFlow</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
+          <div style="background:#313244;border-radius:4px;padding:7px">
+            <div style="color:#cba6f7;font-size:10px;font-weight:bold;margin-bottom:2px">DevFlow</div>
+            <div style="color:#a6e3a1;font-size:9px">5 tâches</div>
+          </div>
+          <div style="background:#313244;border-radius:4px;padding:7px">
+            <div style="color:#cba6f7;font-size:10px;font-weight:bold;margin-bottom:2px">Portfolio</div>
+            <div style="color:#f9e2af;font-size:9px">3 tâches</div>
+          </div>
+          <!-- Carte inline transformée en formulaire -->
+          <div style="background:#313244;border-radius:4px;padding:7px;border:1px solid #89b4fa">
+            <input style="width:100%;background:transparent;border:none;border-bottom:1px solid #45475a;color:#cdd6f4;font-size:10px;outline:none;margin-bottom:4px;padding-bottom:2px;box-sizing:border-box" placeholder="Nom..." />
+            <div style="display:flex;justify-content:flex-end;gap:3px;margin-top:4px">
+              <span style="color:#585b70;font-size:9px;cursor:pointer">✕</span>
+              <span style="color:#a6e3a1;font-size:9px;cursor:pointer">✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Inline dans la grille</h3>
+      <p>La carte "+ Nouveau" se transforme en mini-formulaire directement dans la grille. Très fluide mais limité (pas de description).</p>
+    </div>
+  </div>
+
+</div>
