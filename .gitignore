@@ -4,3 +4,7 @@ dist
 .env
 
 /generated/prisma
+
+# Claude Code local settings (per-machine)
+.claude/settings.local.json
+.superpowers/
