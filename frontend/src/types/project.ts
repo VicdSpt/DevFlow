@@ -1,6 +1,6 @@
-type ProjectStatus = "ACTIVE" | "ARCHIVED" | "DELETED"
+export type ProjectStatus = "ACTIVE" | "ARCHIVED" | "DELETED"
 
-interface Project {
+export interface Project {
     id: string;
     name: string;
     description?: string;
@@ -10,7 +10,7 @@ interface Project {
     updatedAt: string
 }
 
-interface CreateProjectInput {
+export interface CreateProjectInput {
     name: string;
     description?: string;
 }
