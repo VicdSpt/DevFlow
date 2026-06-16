@@ -3,6 +3,7 @@ import { db } from "../db/client"
 import { CreateTaskSchema, UpdateTaskSchema } from '../validators/tasks'
 import { requireProjectRole } from '../lib/projectAuth'
 import { cache } from '../lib/cache'
+import { eventBus } from '../lib/eventBus'
 
 type Variables = { user: { id: string; email: string; name?: string | null } }
 
@@ -64,6 +65,8 @@ tasks.post("/", async (c) => {
     },
   })
   await cache.delPattern(`tasks:${id}:*`)
+  const user = c.get('user')
+  eventBus.emit(id, { type: 'task.created', actorName: user.name ?? user.email, projectId: id })
   return c.json({ data: task }, 201)
 })
 
@@ -87,6 +90,8 @@ tasks.patch("/:taskId", async (c) => {
   if (!result.success) return c.json({ error: result.error.flatten() }, 422)
   const task = await db.task.update({ where: { id: taskId }, data: result.data })
   await cache.delPattern(`tasks:${id}:*`)
+  const user = c.get('user')
+  eventBus.emit(id, { type: 'task.updated', actorName: user.name ?? user.email, projectId: id })
   return c.json({ data: task })
 })
 
@@ -97,6 +102,8 @@ tasks.delete("/:taskId", async (c) => {
   const taskId = c.req.param("taskId")
   await db.task.update({ where: { id: taskId }, data: { status: "ARCHIVED" } })
   await cache.delPattern(`tasks:${id}:*`)
+  const user = c.get('user')
+  eventBus.emit(id, { type: 'task.deleted', actorName: user.name ?? user.email, projectId: id })
   return c.body(null, 204)
 })
 

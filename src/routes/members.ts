@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { db } from '../db/client'
 import { requireProjectRole } from '../lib/projectAuth'
 import { AddMemberSchema, UpdateMemberRoleSchema } from '../validators/members'
+import { eventBus } from '../lib/eventBus'
 
 type Variables = { user: { id: string; email: string; name?: string | null } }
 
@@ -36,6 +37,8 @@ members.post('/', async (c) => {
     data: { projectId: id, userId: targetUser.id, role: result.data.role },
     include: { user: { select: { id: true, name: true, email: true } } },
   })
+  const user = c.get('user')
+  eventBus.emit(id, { type: 'member.added', actorName: user.name ?? user.email, projectId: id })
   return c.json({ data: member }, 201)
 })
 
@@ -67,6 +70,8 @@ members.delete('/:userId', async (c) => {
   await db.projectMember.delete({
     where: { projectId_userId: { projectId: id, userId } },
   })
+  const user = c.get('user')
+  eventBus.emit(id, { type: 'member.removed', actorName: user.name ?? user.email, projectId: id })
   return c.body(null, 204)
 })
 
