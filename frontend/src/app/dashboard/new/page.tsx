@@ -8,7 +8,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { api } from '@/lib/api'
-import type { Project } from '@/types/project'
 
 const schema = z.object({
   name: z.string().min(1, 'Le nom est requis'),
@@ -28,7 +27,7 @@ export default function NewProjectPage() {
 
   const mutation = useMutation({
     mutationFn: (data: FormData) =>
-      api.post('/projects', data).then(res => res.data.data as Project),
+      api.post('/projects', data).then(res => res.data.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] })
       router.push('/dashboard')
@@ -44,12 +43,11 @@ export default function NewProjectPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+    <div className="p-6 flex items-center justify-center min-h-[calc(100vh-65px)]">
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-8 w-full max-w-md">
         <h1 className="text-white text-xl font-bold mb-6">Nouveau projet</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-
           <div>
             <label className="text-gray-400 text-sm block mb-1">Nom</label>
             <input
@@ -72,9 +70,7 @@ export default function NewProjectPage() {
             />
           </div>
 
-          {apiError && (
-            <p className="text-red-400 text-sm">{apiError}</p>
-          )}
+          {apiError && <p className="text-red-400 text-sm">{apiError}</p>}
 
           <div className="flex justify-end gap-3 mt-2">
             <Link
@@ -91,7 +87,6 @@ export default function NewProjectPage() {
               {mutation.isPending ? 'Création...' : 'Créer'}
             </button>
           </div>
-
         </form>
       </div>
     </div>
