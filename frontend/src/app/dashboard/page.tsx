@@ -5,6 +5,18 @@ import Link from "next/link"
 import { api } from "@/lib/api"
 import type { Project } from "@/types/project"
 
+const ROLE_LABELS: Record<string, string> = {
+  OWNER: 'Propriétaire',
+  MEMBER: 'Membre',
+  VIEWER: 'Lecteur',
+}
+
+const ROLE_COLORS: Record<string, string> = {
+  OWNER: 'bg-purple-500/20 text-purple-400',
+  MEMBER: 'bg-blue-500/20 text-blue-400',
+  VIEWER: 'bg-gray-500/20 text-gray-400',
+}
+
 export default function DashboardPage() {
   const { data, isLoading, isError, refetch } = useQuery<Project[]>({
     queryKey: ['projects'],
@@ -61,13 +73,20 @@ export default function DashboardPage() {
         >
           <div className="flex justify-between items-start mb-2">
             <h2 className="font-bold text-white">{project.name}</h2>
-            <span className={`text-xs px-2 py-1 rounded ${
-              project.status === 'ACTIVE'
-                ? 'bg-green-500/20 text-green-400'
-                : 'bg-gray-500/20 text-gray-400'
-            }`}>
-              {project.status}
-            </span>
+            <div className="flex items-center gap-2">
+              {project.userRole && (
+                <span className={`text-xs px-2 py-1 rounded ${ROLE_COLORS[project.userRole]}`}>
+                  {ROLE_LABELS[project.userRole]}
+                </span>
+              )}
+              <span className={`text-xs px-2 py-1 rounded ${
+                project.status === 'ACTIVE'
+                  ? 'bg-green-500/20 text-green-400'
+                  : 'bg-gray-500/20 text-gray-400'
+              }`}>
+                {project.status}
+              </span>
+            </div>
           </div>
           {project.description && (
             <p className="text-sm text-gray-400">{project.description}</p>
