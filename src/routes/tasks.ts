@@ -2,6 +2,7 @@ import { Hono } from "hono"
 import { db } from "../db/client"
 import { CreateTaskSchema, UpdateTaskSchema } from '../validators/tasks'
 import { requireProjectRole } from '../lib/projectAuth'
+import { cache } from '../lib/cache'
 
 type Variables = { user: { id: string; email: string; name?: string | null } }
 
@@ -11,8 +12,37 @@ tasks.get("/", async (c) => {
   const id = c.req.param("id")
   const auth = await requireProjectRole(c, id, 'VIEWER')
   if (!auth.ok) return auth.response
-  const taskList = await db.task.findMany({ where: { projectId: id } })
-  return c.json({ data: taskList })
+
+  const page = Math.max(1, Number(c.req.query('page') || 1))
+  const limit = Math.min(100, Math.max(1, Number(c.req.query('limit') || 20)))
+
+  const cacheKey = `tasks:${id}:${page}:${limit}`
+  const cached = await cache.get(cacheKey)
+  if (cached) return c.json(cached)
+
+  const skip = (page - 1) * limit
+  const [taskList, total] = await Promise.all([
+    db.task.findMany({
+      where: { projectId: id },
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+    }),
+    db.task.count({ where: { projectId: id } }),
+  ])
+
+  const response = {
+    data: taskList,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  }
+
+  await cache.set(cacheKey, response, 300)
+  return c.json(response)
 })
 
 tasks.post("/", async (c) => {
@@ -31,6 +61,7 @@ tasks.post("/", async (c) => {
       projectId: id,
     },
   })
+  await cache.delPattern(`tasks:${id}:*`)
   return c.json({ data: task }, 201)
 })
 
@@ -53,6 +84,7 @@ tasks.patch("/:taskId", async (c) => {
   const result = UpdateTaskSchema.safeParse(body)
   if (!result.success) return c.json({ error: result.error.flatten() }, 422)
   const task = await db.task.update({ where: { id: taskId }, data: result.data })
+  await cache.delPattern(`tasks:${id}:*`)
   return c.json({ data: task })
 })
 
@@ -62,6 +94,7 @@ tasks.delete("/:taskId", async (c) => {
   if (!auth.ok) return auth.response
   const taskId = c.req.param("taskId")
   await db.task.update({ where: { id: taskId }, data: { status: "ARCHIVED" } })
+  await cache.delPattern(`tasks:${id}:*`)
   return c.body(null, 204)
 })
 
