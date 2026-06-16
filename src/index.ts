@@ -4,6 +4,7 @@ import { cors } from 'hono/cors'
 import projects from './routes/projects'
 import tasks from './routes/tasks'
 import members from './routes/members'
+import events from './routes/events'
 import 'dotenv/config'
 import { errorHandler } from './middleware/errorHandler'
 import {auth} from "./lib/auth"
@@ -57,6 +58,7 @@ app.use('/projects/*', authMiddleware)
 
 app.route('/projects/:id/tasks', tasks)
 app.route('/projects/:id/members', members)
+app.route('/projects/:id/events', events)
 app.route('/projects', projects)
 app.onError(errorHandler)
 
