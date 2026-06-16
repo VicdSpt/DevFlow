@@ -51,6 +51,9 @@ model Task {
   project     Project      @relation(fields: [projectId], references: [id])
   assigneeId  String?
   assignee    User?        @relation(fields: [assigneeId], references: [id])
+
+  @@index([projectId])
+  @@index([projectId, status])
 }
 
 enum ProjectStatus {
@@ -130,4 +133,5 @@ model ProjectMember {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, userId])
+  @@index([userId])
 }
