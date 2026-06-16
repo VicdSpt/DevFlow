@@ -34,8 +34,19 @@ export function useProjectEvents(projectId: string, currentUserName?: string | n
       { withCredentials: true }
     )
 
+    es.onerror = () => {
+      console.error('[useProjectEvents] SSE connection error for project', projectId)
+    }
+
     es.onmessage = (e) => {
-      const event = JSON.parse(e.data) as ProjectEvent
+      let event: ProjectEvent
+      try {
+        event = JSON.parse(e.data) as ProjectEvent
+      } catch {
+        console.error('[useProjectEvents] Failed to parse SSE message:', e.data)
+        return
+      }
+
       if (event.actorName === currentUserName) return
 
       if (event.type.startsWith('task.')) {
