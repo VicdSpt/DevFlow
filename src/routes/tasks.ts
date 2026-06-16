@@ -13,8 +13,10 @@ tasks.get("/", async (c) => {
   const auth = await requireProjectRole(c, id, 'VIEWER')
   if (!auth.ok) return auth.response
 
-  const page = Math.max(1, Number(c.req.query('page') || 1))
-  const limit = Math.min(100, Math.max(1, Number(c.req.query('limit') || 20)))
+  const rawPage = parseInt(c.req.query('page') ?? '', 10)
+  const page = isNaN(rawPage) ? 1 : Math.max(1, rawPage)
+  const rawLimit = parseInt(c.req.query('limit') ?? '', 10)
+  const limit = isNaN(rawLimit) ? 20 : Math.min(100, Math.max(1, rawLimit))
 
   const cacheKey = `tasks:${id}:${page}:${limit}`
   const cached = await cache.get(cacheKey)
