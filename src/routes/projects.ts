@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { db } from "../db/client";
 import { CreateProjectSchema, UpdateProjectSchema } from '../validators/projects'
 import { requireProjectRole } from '../lib/projectAuth'
+import { cache } from '../lib/cache'
 
 type Variables = { user: { id: string; email: string; name?: string | null } }
 
@@ -43,13 +44,17 @@ projects.get("/:id", async (c) => {
   const id = c.req.param("id")
   const auth = await requireProjectRole(c, id, 'VIEWER')
   if (!auth.ok) return auth.response
-  const project = await db.project.findUnique({ where: { id } });
+
+  const cacheKey = `project:${id}`
+  const cached = await cache.get(cacheKey)
+  if (cached) return c.json({ data: { ...(cached as object), userRole: auth.member.role } })
+
+  const project = await db.project.findUnique({ where: { id } })
   if (!project)
-    return c.json(
-      { error: { code: "NOT_FOUND", message: "Project not found" } },
-      404,
-    );
-  return c.json({ data: { ...project, userRole: auth.member.role } });
+    return c.json({ error: { code: "NOT_FOUND", message: "Project not found" } }, 404)
+
+  await cache.set(cacheKey, project, 300)
+  return c.json({ data: { ...project, userRole: auth.member.role } })
 });
 
 projects.patch("/:id", async (c) => {
@@ -61,16 +66,18 @@ projects.patch("/:id", async (c) => {
   if (!result.success) {
     return c.json({ error: result.error.flatten() }, 422)
   }
-  const project = await db.project.update({ where: { id }, data: result.data });
-  return c.json({ data: project });
+  const project = await db.project.update({ where: { id }, data: result.data })
+  await cache.del(`project:${id}`)
+  return c.json({ data: project })
 });
 
 projects.delete("/:id", async (c) => {
   const id = c.req.param("id")
   const auth = await requireProjectRole(c, id, 'OWNER')
   if (!auth.ok) return auth.response
-  await db.project.update({ where: { id }, data: { status: 'DELETED' } });
-  return c.body(null, 204);
+  await db.project.update({ where: { id }, data: { status: 'DELETED' } })
+  await cache.del(`project:${id}`)
+  return c.body(null, 204)
 });
 
 export default projects;
