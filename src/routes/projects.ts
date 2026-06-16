@@ -49,7 +49,7 @@ projects.get("/:id", async (c) => {
       { error: { code: "NOT_FOUND", message: "Project not found" } },
       404,
     );
-  return c.json({ data: project });
+  return c.json({ data: { ...project, userRole: auth.member.role } });
 });
 
 projects.patch("/:id", async (c) => {
