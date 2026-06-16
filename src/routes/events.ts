@@ -8,7 +8,8 @@ type Variables = { user: { id: string; email: string; name?: string | null } }
 const events = new Hono<{ Variables: Variables }>()
 
 events.get('/', async (c) => {
-  const id = c.req.param('id') ?? ''
+  const id = c.req.param('id')
+  if (!id) return c.json({ error: { code: 'BAD_REQUEST', message: 'Missing project id' } }, 400)
   const auth = await requireProjectRole(c, id, 'VIEWER')
   if (!auth.ok) return auth.response
 
@@ -17,11 +18,13 @@ events.get('/', async (c) => {
       stream.writeSSE({ data: JSON.stringify(payload) }).catch(() => {})
     })
 
-    stream.onAbort(unsubscribe)
-
-    while (!stream.aborted) {
-      await stream.writeSSE({ event: 'heartbeat', data: '' })
-      await stream.sleep(30_000)
+    try {
+      while (!stream.aborted) {
+        await stream.writeSSE({ event: 'heartbeat', data: '' }).catch(() => {})
+        await stream.sleep(30_000)
+      }
+    } finally {
+      unsubscribe()
     }
   })
 })
