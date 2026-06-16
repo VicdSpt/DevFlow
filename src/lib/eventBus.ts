@@ -1,4 +1,4 @@
-type EventType =
+export type EventType =
   | 'task.created'
   | 'task.updated'
   | 'task.deleted'
@@ -20,12 +20,16 @@ export const eventBus = {
     if (!subscribers.has(projectId)) subscribers.set(projectId, new Set())
     subscribers.get(projectId)!.add(fn)
     return () => {
-      subscribers.get(projectId)?.delete(fn)
-      if (subscribers.get(projectId)?.size === 0) subscribers.delete(projectId)
+      const set = subscribers.get(projectId)
+      if (!set) return
+      set.delete(fn)
+      if (set.size === 0) subscribers.delete(projectId)
     }
   },
 
   emit(projectId: string, payload: ProjectEvent): void {
-    subscribers.get(projectId)?.forEach(fn => fn(payload))
+    subscribers.get(projectId)?.forEach(fn => {
+      try { fn(payload) } catch {}
+    })
   },
 }
