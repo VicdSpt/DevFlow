@@ -53,7 +53,7 @@ export default function ProjectDetailPage() {
 
   const { data: tasks = [], isLoading: tasksLoading } = useQuery<Task[]>({
     queryKey: ['tasks', id],
-    queryFn: () => api.get(`/projects/${id}/tasks`).then(res => res.data.data),
+    queryFn: () => api.get(`/projects/${id}/tasks?limit=100`).then(res => res.data.data),
     enabled: activeTab === 'tasks',
   })
 
