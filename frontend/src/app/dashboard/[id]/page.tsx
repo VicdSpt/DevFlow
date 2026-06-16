@@ -6,6 +6,8 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { api } from '@/lib/api'
 import type { Project, Task, TaskStatus, ProjectMember, Role } from '@/types/project'
+import { useProjectEvents } from '@/hooks/useProjectEvents'
+import { authClient } from '@/lib/auth-client'
 
 const STATUS_LABELS: Record<TaskStatus, string> = {
   TODO: 'À faire',
@@ -45,6 +47,10 @@ export default function ProjectDetailPage() {
   const [newMemberEmail, setNewMemberEmail] = useState('')
   const [newMemberRole, setNewMemberRole] = useState<'MEMBER' | 'VIEWER'>('MEMBER')
   const [memberError, setMemberError] = useState<string | null>(null)
+
+  const { data: session } = authClient.useSession()
+  const currentUserName = session?.user?.name ?? session?.user?.email ?? undefined
+  useProjectEvents(id, currentUserName)
 
   const { data: project, isLoading: projectLoading } = useQuery<Project>({
     queryKey: ['project', id],
