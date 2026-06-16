@@ -3,6 +3,7 @@ import {serve} from '@hono/node-server'
 import { cors } from 'hono/cors'
 import projects from './routes/projects'
 import tasks from './routes/tasks'
+import members from './routes/members'
 import 'dotenv/config'
 import { errorHandler } from './middleware/errorHandler'
 import {auth} from "./lib/auth"
@@ -55,6 +56,7 @@ app.on(['GET', 'POST', 'OPTIONS'], '/api/auth/**', async (c) => {
 app.use('/projects/*', authMiddleware)
 
 app.route('/projects/:id/tasks', tasks)
+app.route('/projects/:id/members', members)
 app.route('/projects', projects)
 app.onError(errorHandler)
 
