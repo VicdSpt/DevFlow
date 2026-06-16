@@ -21,7 +21,7 @@ events.get('/', async (c) => {
     try {
       while (!stream.aborted) {
         await stream.writeSSE({ event: 'heartbeat', data: '' }).catch(() => {})
-        await stream.sleep(30_000)
+        await stream.sleep(30_000).catch(() => {})
       }
     } finally {
       unsubscribe()

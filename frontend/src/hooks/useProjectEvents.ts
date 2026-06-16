@@ -29,16 +29,24 @@ export function useProjectEvents(projectId: string, currentUserName?: string | n
   const queryClient = useQueryClient()
 
   useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000'
     const es = new EventSource(
-      `http://localhost:3000/projects/${projectId}/events`,
+      `${apiUrl}/projects/${projectId}/events`,
       { withCredentials: true }
     )
 
+    let errorCount = 0
     es.onerror = () => {
-      console.error('[useProjectEvents] SSE connection error for project', projectId)
+      errorCount++
+      console.error('[useProjectEvents] SSE connection error for project', projectId, `(${errorCount}/5)`)
+      if (errorCount >= 5) {
+        console.error('[useProjectEvents] Too many errors, closing SSE connection')
+        es.close()
+      }
     }
 
     es.onmessage = (e) => {
+      errorCount = 0  // reset on successful message
       let event: ProjectEvent
       try {
         event = JSON.parse(e.data) as ProjectEvent
