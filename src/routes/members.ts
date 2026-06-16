@@ -63,14 +63,13 @@ members.delete('/:userId', async (c) => {
   const auth = await requireProjectRole(c, id, 'OWNER')
   if (!auth.ok) return auth.response
   const userId = c.req.param('userId')
-  const currentUser = c.get('user') as { id: string }
-  if (userId === currentUser.id) {
+  const user = c.get('user')
+  if (userId === user.id) {
     return c.json({ error: { code: 'FORBIDDEN', message: 'Cannot remove yourself' } }, 403)
   }
   await db.projectMember.delete({
     where: { projectId_userId: { projectId: id, userId } },
   })
-  const user = c.get('user')
   eventBus.emit(id, { type: 'member.removed', actorName: user.name ?? user.email, projectId: id })
   return c.body(null, 204)
 })
