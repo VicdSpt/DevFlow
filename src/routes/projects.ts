@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { db } from "../db/client";
 import { CreateProjectSchema, UpdateProjectSchema } from '../validators/projects'
-
+import { requireProjectRole } from '../lib/projectAuth'
 
 type Variables = { user: { id: string; email: string; name?: string | null } }
 
@@ -9,52 +9,67 @@ const projects = new Hono<{ Variables: Variables }>();
 
 projects.get("/", async (c) => {
   const user = c.get('user')
-  const projects = await db.project.findMany({ where: { ownerId: user.id } });
-  return c.json({ data: projects });
+  const memberships = await db.projectMember.findMany({
+    where: { userId: user.id },
+    include: { project: true },
+  })
+  const data = memberships
+    .filter(m => m.project.status !== 'DELETED')
+    .map(m => ({ ...m.project, userRole: m.role }))
+  return c.json({ data })
 });
 
 projects.post("/", async (c) => {
   const user = c.get('user')
   const body = await c.req.json();
   const result = CreateProjectSchema.safeParse(body)
-  if(!result.success){
-    return c.json({error: result.error.flatten()}, 422)
+  if (!result.success) {
+    return c.json({ error: result.error.flatten() }, 422)
   }
-  const projects = await db.project.create({
+  const project = await db.project.create({
     data: {
       name: result.data.name,
       description: result.data.description,
       ownerId: user.id,
+      members: {
+        create: { userId: user.id, role: 'OWNER' },
+      },
     },
-  });
-  return c.json({ data: projects }, 201);
+  })
+  return c.json({ data: project }, 201);
 });
 
 projects.get("/:id", async (c) => {
-  const id = c.req.param("id");
-  const projects = await db.project.findUnique({ where: { id } });
-  if (!projects)
+  const id = c.req.param("id")
+  const auth = await requireProjectRole(c, id, 'VIEWER')
+  if (!auth.ok) return auth.response
+  const project = await db.project.findUnique({ where: { id } });
+  if (!project)
     return c.json(
       { error: { code: "NOT_FOUND", message: "Project not found" } },
       404,
     );
-  return c.json({ data: projects });
+  return c.json({ data: project });
 });
 
 projects.patch("/:id", async (c) => {
+  const id = c.req.param("id")
+  const auth = await requireProjectRole(c, id, 'OWNER')
+  if (!auth.ok) return auth.response
   const body = await c.req.json();
   const result = UpdateProjectSchema.safeParse(body)
-  if(!result.success){
-    return c.json({error: result.error.flatten()}, 422)
+  if (!result.success) {
+    return c.json({ error: result.error.flatten() }, 422)
   }
-  const id = c.req.param("id");
-  const projects = await db.project.update({ where: { id }, data: result.data });
-  return c.json({ data: projects });
+  const project = await db.project.update({ where: { id }, data: result.data });
+  return c.json({ data: project });
 });
 
 projects.delete("/:id", async (c) => {
-  const id = c.req.param("id");
-  const projects = await db.project.update({ where: { id }, data: { status: 'DELETED' } });
+  const id = c.req.param("id")
+  const auth = await requireProjectRole(c, id, 'OWNER')
+  if (!auth.ok) return auth.response
+  await db.project.update({ where: { id }, data: { status: 'DELETED' } });
   return c.body(null, 204);
 });
 
