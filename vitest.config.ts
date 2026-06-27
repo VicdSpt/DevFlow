@@ -1,4 +1,7 @@
 import { defineConfig } from 'vitest/config'
+import { config } from 'dotenv'
+
+config({ path: '.env.test', override: true })
 
 export default defineConfig({
   test: {
@@ -6,7 +9,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['src/__tests__/setup.ts'],
     env: {
-      DATABASE_URL: 'postgresql://postgres:mysqlpassword@localhost:5432/devflow_test',
+      DATABASE_URL: process.env.DATABASE_URL ?? '',
     },
   },
 })
