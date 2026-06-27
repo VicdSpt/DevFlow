@@ -8,6 +8,11 @@ import { api } from '@/lib/api'
 import type { Project, Task, TaskStatus, ProjectMember, Role } from '@/types/project'
 import { useProjectEvents } from '@/hooks/useProjectEvents'
 import { authClient } from '@/lib/auth-client'
+import { useProjectFiles, useUploadProjectFile, useDeleteProjectFile } from '@/hooks/useFiles'
+import { FileList } from '@/components/FileList'
+import { TaskFilesSection } from '@/components/TaskFilesSection'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000'
 
 const STATUS_LABELS: Record<TaskStatus, string> = {
   TODO: 'À faire',
@@ -41,7 +46,7 @@ export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const queryClient = useQueryClient()
-  const [activeTab, setActiveTab] = useState<'tasks' | 'members'>('tasks')
+  const [activeTab, setActiveTab] = useState<'tasks' | 'members' | 'files'>('tasks')
   const [newTaskTitle, setNewTaskTitle] = useState('')
   const [showNewTask, setShowNewTask] = useState(false)
   const [newMemberEmail, setNewMemberEmail] = useState('')
@@ -60,7 +65,7 @@ export default function ProjectDetailPage() {
   const { data: tasks = [], isLoading: tasksLoading } = useQuery<Task[]>({
     queryKey: ['tasks', id],
     queryFn: () => api.get(`/projects/${id}/tasks?limit=100`).then(res => res.data.data),
-    enabled: activeTab === 'tasks',
+    enabled: activeTab === 'tasks' || activeTab === 'files',
   })
 
   const { data: members = [], isLoading: membersLoading } = useQuery<ProjectMember[]>({
@@ -128,6 +133,10 @@ export default function ProjectDetailPage() {
     },
   })
 
+  const { data: projectFiles = [] } = useProjectFiles(id)
+  const uploadProjectFile = useUploadProjectFile(id)
+  const deleteProjectFile = useDeleteProjectFile(id)
+
   if (projectLoading) {
     return (
       <main className="p-6 max-w-4xl mx-auto">
@@ -156,6 +165,8 @@ export default function ProjectDetailPage() {
   const userRole = project.userRole
   const isOwner = userRole === 'OWNER'
   const canEditTasks = userRole === 'OWNER' || userRole === 'MEMBER'
+  const canUpload = userRole === 'OWNER' || userRole === 'MEMBER'
+  const canDelete = userRole === 'OWNER'
   const activeTasks = tasks.filter(t => t.status !== 'ARCHIVED')
 
   return (
@@ -213,6 +224,16 @@ export default function ProjectDetailPage() {
           }`}
         >
           Membres
+        </button>
+        <button
+          onClick={() => setActiveTab('files')}
+          className={`px-4 py-2 text-sm font-medium cursor-pointer transition-colors ${
+            activeTab === 'files'
+              ? 'text-white border-b-2 border-purple-500'
+              : 'text-gray-500 hover:text-gray-300'
+          }`}
+        >
+          Fichiers
         </button>
       </div>
 
@@ -391,6 +412,45 @@ export default function ProjectDetailPage() {
             </div>
           )}
         </>
+      )}
+
+      {/* Onglet Fichiers */}
+      {activeTab === 'files' && (
+        <div className="flex flex-col gap-6">
+          {/* Fichiers du projet */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-3">Fichiers du projet</h3>
+            <FileList
+              files={projectFiles}
+              canUpload={canUpload}
+              canDelete={canDelete}
+              isUploading={uploadProjectFile.isPending}
+              onUpload={file => uploadProjectFile.mutate(file)}
+              onDelete={fileId => deleteProjectFile.mutate(fileId)}
+              downloadBase={`${API_URL}/projects/${id}/files`}
+            />
+          </div>
+
+          {/* Fichiers par tâche */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-3">Fichiers par tâche</h3>
+            {tasks.length === 0 ? (
+              <p className="text-gray-500 text-sm">Aucune tâche dans ce projet</p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {tasks.map(task => (
+                  <TaskFilesSection
+                    key={task.id}
+                    projectId={id}
+                    task={task}
+                    canUpload={canUpload}
+                    canDelete={canDelete}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </main>
   )
