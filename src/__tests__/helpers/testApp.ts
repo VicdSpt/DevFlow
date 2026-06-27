@@ -1,4 +1,4 @@
-import type { Hono } from 'hono'
+import { Hono } from 'hono'
 
 export type TestUser = { id: string; email: string; name?: string | null }
 
