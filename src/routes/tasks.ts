@@ -107,11 +107,18 @@ tasks.delete("/:taskId", async (c) => {
   const auth = await requireProjectRole(c, id, 'MEMBER')
   if (!auth.ok) return auth.response
   const taskId = c.req.param("taskId")
-  await db.task.update({ where: { id: taskId }, data: { status: "ARCHIVED" } })
-  await cache.delPattern(`tasks:${id}:*`)
-  const user = c.get('user')
-  eventBus.emit(id, { type: 'task.deleted', actorName: user.name ?? user.email, projectId: id })
-  return c.body(null, 204)
+  try {
+    await db.task.update({ where: { id: taskId }, data: { status: "ARCHIVED" } })
+    await cache.delPattern(`tasks:${id}:*`)
+    const user = c.get('user')
+    eventBus.emit(id, { type: 'task.deleted', actorName: user.name ?? user.email, projectId: id })
+    return c.body(null, 204)
+  } catch (e: any) {
+    if (e?.code === 'P2025') {
+      return c.json({ error: { code: 'NOT_FOUND', message: 'Task not found' } }, 404)
+    }
+    throw e
+  }
 })
 
 export default tasks

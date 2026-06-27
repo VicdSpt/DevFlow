@@ -11,6 +11,6 @@ export default defineConfig({
     env: {
       DATABASE_URL: process.env.DATABASE_URL ?? '',
     },
-    fileParallelism: false,
+    fileParallelism: false, // prevents DB race between test files sharing devflow_test
   },
 })
