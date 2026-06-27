@@ -21,6 +21,7 @@ model User {
   projects        Project[]
   tasks           Task[]
   projectMembers  ProjectMember[]
+  attachments     Attachment[]
 }
 
 model Project {
@@ -35,6 +36,7 @@ model Project {
   owner       User          @relation(fields: [ownerId], references: [id])
   tasks       Task[]
   members     ProjectMember[]
+  attachments Attachment[]
 }
 
 model Task {
@@ -54,6 +56,7 @@ model Task {
 
   @@index([projectId])
   @@index([projectId, status])
+  attachments Attachment[]
 }
 
 enum ProjectStatus {
@@ -134,4 +137,22 @@ model ProjectMember {
 
   @@unique([projectId, userId])
   @@index([userId])
+}
+
+model Attachment {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  createdAt    DateTime @default(now())
+
+  projectId    String?
+  project      Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  taskId       String?
+  task         Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
 }
