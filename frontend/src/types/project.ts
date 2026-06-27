@@ -45,3 +45,20 @@ export interface Task {
   createdAt: string
   updatedAt: string
 }
+
+export interface Attachment {
+  id: string
+  filename: string
+  originalName: string
+  mimeType: string
+  size: number
+  createdAt: string
+  projectId: string | null
+  taskId: string | null
+  uploadedById: string
+  uploadedBy: {
+    id: string
+    name: string | null
+    email: string
+  }
+}
