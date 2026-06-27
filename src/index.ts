@@ -6,6 +6,7 @@ import tasks from './routes/tasks'
 import members from './routes/members'
 import events from './routes/events'
 import files from './routes/files'
+import taskFiles from './routes/taskFiles'
 import 'dotenv/config'
 import { errorHandler } from './middleware/errorHandler'
 import {auth} from "./lib/auth"
@@ -61,6 +62,7 @@ app.route('/projects/:id/tasks', tasks)
 app.route('/projects/:id/members', members)
 app.route('/projects/:id/events', events)
 app.route('/projects/:id/files', files)
+app.route('/projects/:id/tasks/:taskId/files', taskFiles)
 app.route('/projects', projects)
 app.onError(errorHandler)
 
