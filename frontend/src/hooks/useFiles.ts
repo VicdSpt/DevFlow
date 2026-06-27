@@ -17,9 +17,7 @@ export function useUploadProjectFile(projectId: string) {
     mutationFn: (file: File) => {
       const fd = new FormData()
       fd.append('file', file)
-      return api.post(`/projects/${projectId}/files`, fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }).then(r => r.data.data)
+      return api.post(`/projects/${projectId}/files`, fd).then(r => r.data.data)
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['files', 'project', projectId] }),
   })
@@ -47,9 +45,7 @@ export function useUploadTaskFile(projectId: string, taskId: string) {
     mutationFn: (file: File) => {
       const fd = new FormData()
       fd.append('file', file)
-      return api.post(`/projects/${projectId}/tasks/${taskId}/files`, fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }).then(r => r.data.data)
+      return api.post(`/projects/${projectId}/tasks/${taskId}/files`, fd).then(r => r.data.data)
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['files', 'task', taskId] }),
   })
