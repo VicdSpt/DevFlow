@@ -88,11 +88,18 @@ tasks.patch("/:taskId", async (c) => {
   const body = await c.req.json()
   const result = UpdateTaskSchema.safeParse(body)
   if (!result.success) return c.json({ error: result.error.flatten() }, 422)
-  const task = await db.task.update({ where: { id: taskId }, data: result.data })
-  await cache.delPattern(`tasks:${id}:*`)
-  const user = c.get('user')
-  eventBus.emit(id, { type: 'task.updated', actorName: user.name ?? user.email, projectId: id })
-  return c.json({ data: task })
+  try {
+    const task = await db.task.update({ where: { id: taskId }, data: result.data })
+    await cache.delPattern(`tasks:${id}:*`)
+    const user = c.get('user')
+    eventBus.emit(id, { type: 'task.updated', actorName: user.name ?? user.email, projectId: id })
+    return c.json({ data: task })
+  } catch (e: any) {
+    if (e?.code === 'P2025') {
+      return c.json({ error: { code: 'NOT_FOUND', message: 'Task not found' } }, 404)
+    }
+    throw e
+  }
 })
 
 tasks.delete("/:taskId", async (c) => {

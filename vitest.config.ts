@@ -6,7 +6,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['src/__tests__/setup.ts'],
     env: {
-      DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/devflow_test',
+      DATABASE_URL: 'postgresql://postgres:mysqlpassword@localhost:5432/devflow_test',
     },
   },
 })
