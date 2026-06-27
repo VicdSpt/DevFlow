@@ -16,6 +16,11 @@ taskFiles.get('/', async (c) => {
   const auth = await requireProjectRole(c, id, 'VIEWER')
   if (!auth.ok) return auth.response
 
+  const task = await db.task.findUnique({ where: { id: taskId } })
+  if (!task || task.projectId !== id) {
+    return c.json({ error: { code: 'NOT_FOUND', message: 'Task not found' } }, 404)
+  }
+
   const attachments = await db.attachment.findMany({
     where: { taskId },
     orderBy: { createdAt: 'desc' },
@@ -29,6 +34,11 @@ taskFiles.post('/', async (c) => {
   const taskId = c.req.param('taskId')
   const auth = await requireProjectRole(c, id, 'MEMBER')
   if (!auth.ok) return auth.response
+
+  const task = await db.task.findUnique({ where: { id: taskId } })
+  if (!task || task.projectId !== id) {
+    return c.json({ error: { code: 'NOT_FOUND', message: 'Task not found' } }, 404)
+  }
 
   const body = await c.req.parseBody()
   const file = body['file']
@@ -66,6 +76,11 @@ taskFiles.get('/:fileId', async (c) => {
   const auth = await requireProjectRole(c, id, 'VIEWER')
   if (!auth.ok) return auth.response
 
+  const task = await db.task.findUnique({ where: { id: taskId } })
+  if (!task || task.projectId !== id) {
+    return c.json({ error: { code: 'NOT_FOUND', message: 'Task not found' } }, 404)
+  }
+
   const fileId = c.req.param('fileId')
   const attachment = await db.attachment.findUnique({ where: { id: fileId } })
   if (!attachment || attachment.taskId !== taskId) {
@@ -87,6 +102,11 @@ taskFiles.delete('/:fileId', async (c) => {
   const taskId = c.req.param('taskId')
   const auth = await requireProjectRole(c, id, 'OWNER')
   if (!auth.ok) return auth.response
+
+  const task = await db.task.findUnique({ where: { id: taskId } })
+  if (!task || task.projectId !== id) {
+    return c.json({ error: { code: 'NOT_FOUND', message: 'Task not found' } }, 404)
+  }
 
   const fileId = c.req.param('fileId')
   const attachment = await db.attachment.findUnique({ where: { id: fileId } })
