@@ -1,6 +1,0 @@
-{
-  "buildCommand": "cd frontend && pnpm install && pnpm build",
-  "outputDirectory": "frontend/.next",
-  "installCommand": "echo 'skip root install'",
-  "framework": "nextjs"
-}
